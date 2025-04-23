@@ -3,7 +3,7 @@ const cors = require('cors');
 
 const cookieParser = require('cookie-parser');
 const moongoose = require('mongoose');
-
+const router = require('./router/index');
 
 const createApp = () => {
     const app = express();
@@ -11,6 +11,7 @@ const createApp = () => {
     app.use(cors());
     app.use(express.json());
     app.use(cookieParser());
+    app.use('/api', router);
 
     app.use((err, req, res, next) => {
         console.error('[Unhandled Error]', err);
