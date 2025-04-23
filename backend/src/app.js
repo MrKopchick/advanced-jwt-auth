@@ -3,7 +3,7 @@ const cors = require('cors');
 
 const cookieParser = require('cookie-parser');
 const moongoose = require('mongoose');
-const router = require('./router/index');
+const router = require('./routes/index.routes');
 
 const createApp = () => {
     const app = express();
