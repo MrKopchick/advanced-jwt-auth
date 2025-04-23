@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+
 const cookieParser = require('cookie-parser');
+const moongoose = require('mongoose');
 
 
 const createApp = () => {
@@ -8,6 +10,7 @@ const createApp = () => {
 
     app.use(cors());
     app.use(express.json());
+    app.use(cookieParser());
 
     app.use((err, req, res, next) => {
         console.error('[Unhandled Error]', err);
