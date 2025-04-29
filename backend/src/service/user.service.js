@@ -8,7 +8,8 @@ const UserDto = require('../dtos/user.dto');
 
 const MailService = require('./mail.service');
 const TokenService = require('./token.service');
-const tokenService = require('./token.service');
+
+const ApiError = require('../utils/api-error.util');
 
 class UserService {
     async registration(email, password) {
@@ -16,13 +17,13 @@ class UserService {
             const candidate = await UserModel.findOne({ email });
 
             if(candidate) {
-                throw new Error('User with this email already exists');
+                throw ApiError.BadRequest(`User with email ${email} already exists`);
             }
             
             const hashPassword = await bcrypt.hash(password, 3);
             const activationLink = uuid.v4();
 
-            const user = await UserModel.create({ email, password: hashPassword });
+            const user = await UserModel.create({ email, password: hashPassword , activationLink });
             await MailService.sendActivationMail(email, `${process.env.API_URL}/api/auth/activate/${activationLink}`);
             
             const userDto = new UserDto(user);
@@ -37,8 +38,17 @@ class UserService {
 
         } catch (e) {
             console.error("[REGISTRATION ERROR]", e);
-            throw new Error('Registration error');
+            throw new ApiError.InternalServerError('Registration error', e);
         }
+    }
+
+    async activate(activationLink) {
+        const user = await UserModel.findOne({ activationLink });
+        if (!user) {
+            throw ApiError.BadRequest('Invalid activation link');
+        }
+        user.isActivated = true;
+        await user.save();
     }
 }
 

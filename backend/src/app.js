@@ -5,6 +5,8 @@ const cookieParser = require('cookie-parser');
 const moongoose = require('mongoose');
 const router = require('./routes/index.routes');
 
+const errorMiddleware = require('./middleware/error.middleware');
+
 const createApp = () => {
     const app = express();
 
@@ -12,6 +14,7 @@ const createApp = () => {
     app.use(express.json());
     app.use(cookieParser());
     app.use('/api', router);
+    app.use(errorMiddleware);
 
     app.use((err, req, res, next) => {
         console.error('[Unhandled Error]', err);

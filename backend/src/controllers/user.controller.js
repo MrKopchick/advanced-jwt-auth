@@ -1,10 +1,16 @@
 const userService = require('../service/user.service');
+const {validationResult} = require('express-validator');    
+const ApiError = require('../utils/api-error.util');
 
 class UserController {
     async registration(req, res) {  
         try{
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {  
+                return next(ApiError.BadRequest('Validation error', errors.array()));
+            }
+
             const {email, password} = req.body;
-            console.log("Request body:", req.body);
 
             if (!email || !password) {
                 return res.status(400).json({ message: 'Email and password are required' });
@@ -16,16 +22,14 @@ class UserController {
             
             return res.json(userData);
         }catch(e){
-            console.log("[REGISTRATION ERROR] ", e);
-            res.status(500).json({message: 'Registration error'});
+            next(e);
         }
     }
     async login(req, res) {  
         try{
 
         }catch(e){
-            console.log("[LOGIN ERROR] ", e);
-            res.status(500).json({message: 'Registration error'});
+            next(e);
         }
     }
     async login(req, res) {  
@@ -40,24 +44,23 @@ class UserController {
         try{
 
         }catch(e){
-            console.log("[LOGOUT ERROR] ", e);
-            res.status(500).json({message: 'Registration error'});
+            next(e);
         }
     }
     async activate(req, res) {  
         try{
-
+            const activationLink = req.params.link;
+            await userService.activate(activationLink);
+            return res.redirect(process.env.CLIENT_URL);
         }catch(e){
-            console.log("[ACTIVATE ERROR] ", e);
-            res.status(500).json({message: 'Registration error'});
+            next(e);
         }
     }
     async refresh(req, res) {  
         try{
 
         }catch(e){
-            console.log("[REFRESH ERROR] ", e);
-            res.status(500).json({message: 'Registration error'});
+            next(e);
         }
     }
 
@@ -65,8 +68,7 @@ class UserController {
         try{
             res.json({message: 'some users'});
         }catch(e){
-            console.log("[GET_USERS ERROR] ", e);
-            res.status(500).json({message: 'Registration error'});
+            next(e);
         }
     }
 }
