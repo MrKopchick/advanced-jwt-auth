@@ -9,13 +9,15 @@ const UserDto = require('../dtos/user.dto');
 const MailService = require('./mail.service');
 const TokenService = require('./token.service');
 
+const ApiError = require('../utils/api-error.util');
+
 class UserService {
     async registration(email, password) {
         try {
             const candidate = await UserModel.findOne({ email });
 
             if(candidate) {
-                throw new Error('User with this email already exists');
+                throw ApiError.BadRequest(`User with email ${email} already exists`);
             }
             
             const hashPassword = await bcrypt.hash(password, 3);
@@ -36,14 +38,14 @@ class UserService {
 
         } catch (e) {
             console.error("[REGISTRATION ERROR]", e);
-            throw new Error('Registration error');
+            throw new ApiError.InternalServerError('Registration error', e);
         }
     }
 
     async activate(activationLink) {
         const user = await UserModel.findOne({ activationLink });
         if (!user) {
-            throw new Error('User not found');
+            throw ApiError.BadRequest('Invalid activation link');
         }
         user.isActivated = true;
         await user.save();
