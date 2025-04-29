@@ -27,19 +27,15 @@ class UserController {
     }
     async login(req, res) {  
         try{
-
+            const {email, password} = req.body;
+            const userData = await userService.login(email, password);
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            return res.json(userData);
         }catch(e){
             next(e);
         }
     }
-    async login(req, res) {  
-        try{
-
-        }catch(e){
-            console.log("[LOGIN ERROR] ", e);
-            res.status(500).json({message: 'Registration error'});
-        }
-    }
+    
     async logout(req, res) {  
         try{
 
