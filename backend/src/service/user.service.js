@@ -8,7 +8,6 @@ const UserDto = require('../dtos/user.dto');
 
 const MailService = require('./mail.service');
 const TokenService = require('./token.service');
-const tokenService = require('./token.service');
 
 class UserService {
     async registration(email, password) {
@@ -22,7 +21,7 @@ class UserService {
             const hashPassword = await bcrypt.hash(password, 3);
             const activationLink = uuid.v4();
 
-            const user = await UserModel.create({ email, password: hashPassword });
+            const user = await UserModel.create({ email, password: hashPassword , activationLink });
             await MailService.sendActivationMail(email, `${process.env.API_URL}/api/auth/activate/${activationLink}`);
             
             const userDto = new UserDto(user);
@@ -39,6 +38,15 @@ class UserService {
             console.error("[REGISTRATION ERROR]", e);
             throw new Error('Registration error');
         }
+    }
+
+    async activate(activationLink) {
+        const user = await UserModel.findOne({ activationLink });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        user.isActivated = true;
+        await user.save();
     }
 }
 

@@ -4,7 +4,6 @@ class UserController {
     async registration(req, res) {  
         try{
             const {email, password} = req.body;
-            console.log("Request body:", req.body);
 
             if (!email || !password) {
                 return res.status(400).json({ message: 'Email and password are required' });
@@ -46,7 +45,9 @@ class UserController {
     }
     async activate(req, res) {  
         try{
-
+            const activationLink = req.params.link;
+            await userService.activate(activationLink);
+            return res.redirect(process.env.CLIENT_URL);
         }catch(e){
             console.log("[ACTIVATE ERROR] ", e);
             res.status(500).json({message: 'Registration error'});
