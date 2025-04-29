@@ -69,6 +69,16 @@ class UserService {
         user.isActivated = true;
         await user.save();
     }
+
+    async logout(refreshToken) {
+        const token = await TokenService.removeToken(refreshToken);
+        return token;
+    }
+
+    async removeToken(refreshToken) {
+        const tokenData = await TokenModel.deleteOne({refreshToken});
+        return tokenData;
+    }
 }
 
 module.exports = new UserService();
