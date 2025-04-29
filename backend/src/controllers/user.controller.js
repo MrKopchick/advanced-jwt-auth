@@ -27,22 +27,21 @@ class UserController {
     }
     async login(req, res) {  
         try{
-
+            const {email, password} = req.body;
+            const userData = await userService.login(email, password);
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            return res.json(userData);
         }catch(e){
             next(e);
         }
     }
-    async login(req, res) {  
-        try{
 
-        }catch(e){
-            console.log("[LOGIN ERROR] ", e);
-            res.status(500).json({message: 'Registration error'});
-        }
-    }
     async logout(req, res) {  
         try{
-
+            const {refreshToken} = req.cookies;
+            const token = await userService.logout(refreshToken);
+            res.clearCookie('refreshToken');
+            return res.json(token);
         }catch(e){
             next(e);
         }
@@ -58,7 +57,10 @@ class UserController {
     }
     async refresh(req, res) {  
         try{
-
+            const {refreshToken} = req.cookies;
+            const userData = await userService.refresh(refreshToken);
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            return res.json(userData);
         }catch(e){
             next(e);
         }
@@ -66,7 +68,7 @@ class UserController {
 
     async getUsers(req, res) {  
         try{
-            res.json({message: 'some users'});
+            return res.json(await userService.getAllUsers());
         }catch(e){
             next(e);
         }
